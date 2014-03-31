@@ -1,4 +1,4 @@
-## ChaoEntropy online
+## ChaoEntropy online beta version
 
 ####Interactive data analytics using <a href="http://www.r-project.org/" target="_blank">R</a> and <a href="http://www.rstudio.com/shiny/" target="_blank">Shiny</a> by <a href="http://www.rstudio.com/" target="_blank">Rstudio</a>.####
 
