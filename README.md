@@ -10,7 +10,7 @@
 ### Run the development version of the web app in the browser window
 - Required: A modern browser (e.g., Chrome, Firefox, or Safari). Internet Explorer is not supported.
   
-  <a href="http://spark.rstudio.com/mikelee/ChaoEntropy/" target="_blank">Click here link to ChaoEntropy web App</a>
+  <a href="http://spark.rstudio.com/mikelee/ChaoEntropy-beta/" target="_blank">Click here link to ChaoEntropy web App</a>
 
 ### Run the development version of the web app locally
 
@@ -23,7 +23,7 @@ Start R(studio) and copy-and-paste the commands below:
 ```coffee
 # install.packages('shiny')
 require('shiny')
-runGitHub('ChaoEntropyOnline', 'YuanHanLee')
+runGitHub('ChaoEntropy-online-beta', 'YuanHanLee')
 ```
 
   
