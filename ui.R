@@ -14,22 +14,6 @@ require(shiny)
 require(knitr)
 require(shinyIncubator)
 
-# loadingBar <- tags$div(class="progress progress-striped active",
-#                        tags$div(class="bar", style="width: 100%;"))
-# # Code for loading message
-# loadingMsg <- tags$div(class="modal", tabindex="-1", role="dialog", 
-#                        "aria-labelledby"="myModalLabel", "aria-hidden"="true",
-#                        tags$div(class="modal-header",
-#                                 tags$h3(id="myModalHeader", "Loading...")),
-#                        tags$div(class="modal-footer",
-#                                 loadingBar))
-# The conditional panel to show when shiny is busy
-# loadingPanel <- conditionalPanel("$('html').hasClass('shiny-busy')",
-#                                  loadingMsg)
-# loadingPanel <- conditionalPanel(paste("input.goButton > 0 &&", 
-#                                        "$('html').hasClass('shiny-busy')"),
-#                                  loadingMsg)
-
 shinyUI(navbarPage(
   theme = "bootstrap.css",
   title=("ChaoEntropy Online"),
@@ -102,12 +86,10 @@ shinyUI(navbarPage(
                tabsetPanel(
                  tabPanel("Data Summary", h3("Basic data information"),
                           icon = icon("list-alt"),
-#                           loadingPanel,
                           htmlOutput("data_summary")
                  ),
                  tabPanel("Estimation", h3("Estimation of entropy"), 
                           icon = icon("thumbs-up"),
-#                           loadingPanel,
                           htmlOutput('est'),
                           downloadLink("dlest", "Download as csv file"),
                           conditionalPanel(
@@ -120,8 +102,6 @@ shinyUI(navbarPage(
                  
                  tabPanel("Visualization", h3("Comparison with different methods"), 
                           icon = icon("bar-chart-o"),
-#                           p("Note: Please wait a moment!"),
-#                           loadingPanel,
                           plotOutput("visualization", width="900px", height="600px")
                           
                  ),
@@ -131,9 +111,71 @@ shinyUI(navbarPage(
              )
            )
   ),
+  
   tabPanel(
     title=("Mutual Information "),
-    h3("Coming soon :) ", style="text-align: center")
+    h1("ChaoMI"),
+    sidebarLayout(
+      sidebarPanel(
+        tags$head(
+          tags$style(type="text/css", "label.radio { display: inline-block; }", ".radio input[type=\"radio\"] { float: none; }"),
+          tags$style(type="text/css", "select { max-width: 250px; }"),
+          tags$style(type="text/css", "input { max-width: 250px; }"),
+          tags$style(type="text/css", "textarea { max-width: 230px; }"),
+          tags$style(type='text/css', ".span4 { max-width: 300px; }")
+        ),
+        actionButton("MIgoButton", span("Run!", style="font-size: 40px"), icon = icon("rocket", "fa-3x")),
+        p(h4("Data Setting")),
+        wellPanel(
+          radioButtons(inputId="MIsource", "Choose one:", 
+                       choices=c("Demo data" = "demo", "Upload data" = "upload")
+          ),
+          conditionalPanel(condition="input.MIsource == 'demo'",
+                           selectInput("MIdataset", "Select dataset:", 
+                                       choices = c("Dolichoderinae", "Formicinae", "Myrmicinae"), 
+                                       selected = "Dolichoderinae", multiple = TRUE, selectize=FALSE),
+                           p(em("Using ctrl / command key to select multiple datasets you want"))
+          ),
+          conditionalPanel(condition="input.MIsource == 'upload'",
+                           fileInput("MIfiles1", "Choose File (.csv)", accept=".csv"),
+                           fileInput("MIfiles2", "Choose File (.csv)"),
+                           fileInput("MIfiles3", "Choose File (.csv)")
+          )
+        ),
+        
+        p(h4("General Setting")),
+        wellPanel(
+          checkboxGroupInput(inputId="MImethod", label="Select the methods:",
+                             choices=c("Chao", "ChaoShen", "Jackknife", "Bias Correct 1", "Bias Correct 2", "Observed"),
+                             selected=c("Chao", "ChaoShen", "Jackknife", "Bias Correct 1", "Bias Correct 2", "Observed")),
+          numericInput(inputId="MInboot", label="Number of bootstraps", value=100, min=1, max=1000, step=1),
+          numericInput(inputId="MIconf", label="Confidence level", value=0.95, min=0, max=1, step=0.01)
+        )
+      ),
+      mainPanel(
+        progressInit(),
+        tabsetPanel(
+          tabPanel("Data Viewer", h3("Show raw data"),
+                   icon = icon("list-alt"),
+                   htmlOutput('MIdata_summary')
+          ),
+          tabPanel("Estimation", h3("Estimation of entropy"), 
+                   icon = icon("thumbs-up"),
+                   htmlOutput('MIest'),
+                   downloadLink("MIdlest", "Download as csv file")
+          ),
+          tabPanel("Visualization", h3("Comparison with different methods"), 
+                   icon = icon("bar-chart-o"),
+                   plotOutput('MIvisualization', width="900px", height="600px")
+          ),
+          tabPanel("User Guide", icon = icon("question-circle"), 
+                   p("Coming soon :)")),
+          tabPanel("R code", icon = icon("wrench"), 
+                   p("Coming soon :)"))
+        )
+      )
+      
+    )
   )
   
   

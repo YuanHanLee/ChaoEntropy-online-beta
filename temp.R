@@ -49,7 +49,6 @@ out <- lapply(dataset, function(x) {
   return(list(temp, gis))
 })
 
-
 pic <- list()
 i <- 1
 for (i in seq_along(dataset)) {
@@ -67,3 +66,44 @@ for (i in seq_along(dataset)) {
 print(multiplot4shiny(pic, cols=1))
 
 
+#### START to Mutual Information
+
+input <- list(MIdataset=c("Dolichoderinae", "Myrmicinae"))
+input$MIdataset
+
+
+fileName <- "upload-mi/obligate.csv"
+obligate <- read.csv(fileName, header=TRUE)
+ncol(obligate)
+# if (input$MIgoButton == 0) return(NULL)
+#     isolate({
+#       withProgress(session, min=0, max=input$MInboot, expr={
+#         for (i in 1:input$MInboot) {
+#           setProgress(message = 'Calculation in progress',
+#                       detail = 'This may take a while :)',
+#                       value=i)
+#           Sys.sleep(0.0001)
+#         }
+#     !!!!!!content!!!!
+#       })
+#     })
+
+
+MIgetDataName <- reactive({
+  if (input$MIsource == 'demo') {
+    out <- names(MIdemoDataset)
+  } else {
+    if (is.null(input$MIfiles1) & is.null(input$MIfiles2) & is.null(input$MIfiles3)) {
+      out <- "Not_uploaded"
+    } else {
+      name1 <- input$MIfiles1$name
+      name2 <- input$MIfiles2$name
+      out <- c(name1, name2)
+    }
+  })
+
+
+output$choose_dataset <- renderUI({
+  dat <- getDataName()
+  selectInput("dataset", "Select dataset:", choices = dat, selected = dat[1], multiple = TRUE, selectize=FALSE)  
+})
