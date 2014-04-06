@@ -23,7 +23,6 @@ source("sub-mi/miFunction.R")
 
 
 shinyServer(function(input, output, session) {
-  
   tempRD2 <- paste(tempfile(), ".RData", sep="")
   tempRD3 <- paste(tempfile(), ".RData", sep="")
   
@@ -129,6 +128,11 @@ shinyServer(function(input, output, session) {
   output$data_summary <- renderPrint({
     if (input$goButton == 0) return(NULL)
     isolate({
+      if (input$source == 'upload') {
+        if (is.null(input$files)) {
+          return()
+        }
+      }
       dataset <-   selectedData()
       if (input$datatype == "abu") {
         summ <- lapply(dataset, function(x) {
@@ -182,6 +186,11 @@ shinyServer(function(input, output, session) {
   output$est <- renderPrint({
     if (input$goButton == 0) return(NULL)
     isolate({
+      if (input$source == 'upload') {
+        if (is.null(input$files)) {
+          return()
+        }
+      }
       withProgress(session, min=0, max=input$nboot, expr={
         for (i in 1:input$nboot) {
           setProgress(message = 'Calculation in progress',
@@ -209,6 +218,11 @@ shinyServer(function(input, output, session) {
   output$visualization <- renderPlot({
     if (input$goButton == 0) return(NULL)
     isolate({
+      if (input$source == 'upload') {
+        if (is.null(input$files)) {
+          return()
+        }
+      }
       withProgress(session, min=0, max=input$nboot, expr={
         for (i in 1:input$nboot) {
           setProgress(message = 'Calculation in progress',
@@ -251,24 +265,51 @@ shinyServer(function(input, output, session) {
   
   MIdemoDataset <- list(Dolichoderinae=Dolichoderinae, Formicinae=Formicinae, Myrmicinae=Myrmicinae)
   
-  MIselectedData <- reactive({
-    
-    
-    if (input$MIsource == 'demo') {
-      out <- MIdemoDataset
+  MIdata <- reactive({
+    if (input$MIsource == 'MIdemo') {
+      midata <- MIdemoDataset
     } else {
       if (is.null(input$MIfiles1) & is.null(input$MIfiles2) & is.null(input$MIfiles3)) {
-        out <- NULL
+        midata <- NULL
       } else {
         name1 <- input$MIfiles1$name
         name2 <- input$MIfiles2$name
-        out <- list(name1=read.csv(input$MIfiles1$datapath), 
-                    name2=read.csv(input$MIfiles2$datapath))
+        name3 <- input$MIfiles3$name
+        na1 <- gsub(pattern=".csv", replacement="", x=name1)
+        na2 <- gsub(pattern=".csv", replacement="", x=name2)
+        na3 <- gsub(pattern=".csv", replacement="", x=name3)
+        if (is.null(input$MIfiles2)) {
+          midata <- list(read.csv(input$MIfiles1$datapath))
+          names(midata) <- c(na1)          
+        } else if (is.null(input$MIfiles3)) {
+          midata <- list(read.csv(input$MIfiles1$datapath),
+                         read.csv(input$MIfiles2$datapath))
+          names(midata) <- c(na1, na2)
+        } else {
+          midata <- list(read.csv(input$MIfiles1$datapath),
+                         read.csv(input$MIfiles2$datapath),
+                         read.csv(input$MIfiles3$datapath))
+          names(midata) <- c(na1, na2, na2)
+        }
       }
     }
-    
-    
-    
+    midata
+  })
+  
+  MIgetDataName <- reactive({
+    out <- MIdata()
+    out.name <- names(out)
+    out.name
+  })
+
+  output$MIchoose_dataset <- renderUI({
+    dat <- MIgetDataName()
+    selectInput("MIdataset", "Select dataset:", choices = dat, selected = dat[1], multiple = TRUE, selectize=FALSE)  
+  })
+  
+  
+  MIselectedData <- reactive({
+    out <- MIdata()
     selected <- 1
     dataset <- list()
     for(i in seq_along(input$MIdataset)){
@@ -283,14 +324,22 @@ shinyServer(function(input, output, session) {
   })
   
   output$MIdata_summary <- renderPrint({
-    dataset <- MIselectedData()
-    summ <- lapply(dataset, function(x) {
-      gvisTable(x, options=list(width='90%', height='50%', sort='disable'))
+    if (input$MIgoButton == 0) return(NULL)
+    isolate({
+      if (input$MIsource == 'MIupload') {
+        if (is.null(input$MIfiles1) & is.null(input$MIfiles2) & is.null(input$MIfiles3)) {
+          return()
+        }
+      }
+      dataset <- MIselectedData()
+      summ <- lapply(dataset, function(x) {
+        gvisTable(x, options=list(width='90%', height='50%', sort='disable'))
+      })
+      for (i in seq_along(dataset)) {
+        summ[[i]]$html <- summ[[i]]$html[-c(3:4)]
+      }
+      return(summ)      
     })
-    for (i in seq_along(dataset)) {
-      summ[[i]]$html <- summ[[i]]$html[-c(3:4)]
-    }
-    return(summ)
   })
   
   
@@ -321,18 +370,34 @@ shinyServer(function(input, output, session) {
   })
   
   output$MIest <- renderPrint({
-    dataset <- MIselectedData()
-    out <- MIcomputation()
-    excl <- list()
-    gtab <- list()
-    for (i in seq_along(dataset)) {
-      excl[i] <- list(out[[i]][[1]])
-      gtab[i] <- list(out[[i]][[2]])
-    }
-    names(gtab) <- input$MIdataset
-    names(excl) <- input$MIdataset
-    saveRDS(excl, tempRD3)
-    return(gtab)
+    if (input$MIgoButton == 0) return(NULL)
+    isolate({
+      if (input$MIsource == 'MIupload') {
+        if (is.null(input$MIfiles1) & is.null(input$MIfiles2) & is.null(input$MIfiles3)) {
+          return()
+        }
+      }
+      withProgress(session, min=0, max=input$MInboot, expr={
+        for (i in 1:input$MInboot) {
+          setProgress(message = 'Calculation in progress',
+                      detail = 'This may take a while :)',
+                      value=i)
+          Sys.sleep(0.0001)
+        }
+        dataset <- MIselectedData()
+        out <- MIcomputation()
+        excl <- list()
+        gtab <- list()
+        for (i in seq_along(dataset)) {
+          excl[i] <- list(out[[i]][[1]])
+          gtab[i] <- list(out[[i]][[2]])
+        }
+        names(gtab) <- input$MIdataset
+        names(excl) <- input$MIdataset
+        saveRDS(excl, tempRD3)
+        return(gtab)
+      })
+    })
   })
   
   output$MIdlest <- downloadHandler(
@@ -344,22 +409,37 @@ shinyServer(function(input, output, session) {
   )
   
   output$MIvisualization <- renderPlot({
-    dataset <- MIselectedData()
-    out <- MIcomputation()
-    pic <- list()
-    for (i in seq_along(dataset)) {
-      temp <- out[[i]][[1]]
-      index <- letters[1:nrow(temp)]
-      df <- data.frame(index, rownames(temp), temp)
-      rownames(df) <- NULL
-      colnames(df) <- c("id", "Methods", "Estimator", "SE", "Lower", "Upper")
-      p <- ggplot(df, aes(id, Estimator, ymin=Lower, ymax=Upper, colour=id))
-      pout <- p + geom_errorbar(width = 0.5, size=2) + geom_point(size=6) + labs(title=names(dataset[i]), x="Methods") + 
-        scale_color_manual(values=c(wes.palette(5, "Darjeeling"), 1), name="Methods", breaks=index, labels=rownames(temp)) + 
-        scale_x_discrete(breaks=index, labels=rownames(temp))  
-      pic[i] <- list(pout)
-    }
-    print(multiplot4shiny(pic, cols=1))
+    if (input$MIgoButton == 0) return(NULL)
+    isolate({
+      if (input$MIsource == 'MIupload') {
+        if (is.null(input$MIfiles1) & is.null(input$MIfiles2) & is.null(input$MIfiles3)) {
+          return()
+        }
+      }
+      withProgress(session, min=0, max=input$MInboot, expr={
+        for (i in 1:input$MInboot) {
+          setProgress(message = 'Calculation in progress',
+                      detail = 'This may take a while :)',
+                      value=i)
+          Sys.sleep(0.0001)
+        }
+        dataset <- MIselectedData()
+        out <- MIcomputation()
+        pic <- list()
+        for (i in seq_along(dataset)) {
+          temp <- out[[i]][[1]]
+          index <- letters[1:nrow(temp)]
+          df <- data.frame(index, rownames(temp), temp)
+          rownames(df) <- NULL
+          colnames(df) <- c("id", "Methods", "Estimator", "SE", "Lower", "Upper")
+          p <- ggplot(df, aes(id, Estimator, ymin=Lower, ymax=Upper, colour=id))
+          pout <- p + geom_errorbar(width = 0.5, size=2) + geom_point(size=6) + labs(title=names(dataset[i]), x="Methods") + 
+            scale_color_manual(values=c(wes.palette(5, "Darjeeling"), 1), name="Methods", breaks=index, labels=rownames(temp)) + 
+            scale_x_discrete(breaks=index, labels=rownames(temp))  
+          pic[i] <- list(pout)
+        }
+        print(multiplot4shiny(pic, cols=1))
+      })
+    })
   })
-  
 })

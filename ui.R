@@ -1,21 +1,9 @@
-GTM <- "
-<!-- Google Tag Manager -->
-  <noscript><iframe src=\"//www.googletagmanager.com/ns.html?id=GTM-W3L6VW\"
-height=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"></iframe></noscript>
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-W3L6VW');</script>
-<!-- End Google Tag Manager -->
-"  
-
 require(shiny)
 require(knitr)
 require(shinyIncubator)
 
 shinyUI(navbarPage(
-  theme = "bootstrap.css",
+#   theme = "bootstrap.css",
   title=("ChaoEntropy Online"),
   tabPanel(("Shannon entropy"),
            h1("ChaoEntropy"),
@@ -38,7 +26,7 @@ shinyUI(navbarPage(
                               choices=c("Import data" = "import", "Upload data" = "upload")
                  ),
                  conditionalPanel(condition="input.source == 'upload'",
-                                  fileInput("files", "Choose File (.csv)")
+                                  fileInput("files", "Choose File (.csv)", accept=".csv")
                  ),
                  
                  
@@ -128,19 +116,15 @@ shinyUI(navbarPage(
         p(h4("Data Setting")),
         wellPanel(
           radioButtons(inputId="MIsource", "Choose one:", 
-                       choices=c("Demo data" = "demo", "Upload data" = "upload")
-          ),
-          conditionalPanel(condition="input.MIsource == 'demo'",
-                           selectInput("MIdataset", "Select dataset:", 
-                                       choices = c("Dolichoderinae", "Formicinae", "Myrmicinae"), 
-                                       selected = "Dolichoderinae", multiple = TRUE, selectize=FALSE),
-                           p(em("Using ctrl / command key to select multiple datasets you want"))
+                       choices=c("Demo data" = "MIdemo", "Upload data" = "MIupload")
           ),
           conditionalPanel(condition="input.MIsource == 'upload'",
                            fileInput("MIfiles1", "Choose File (.csv)", accept=".csv"),
                            fileInput("MIfiles2", "Choose File (.csv)"),
                            fileInput("MIfiles3", "Choose File (.csv)")
-          )
+          ),
+          uiOutput("MIchoose_dataset"),
+          p(em("Using ctrl / command key to select multiple datasets you want"))
         ),
         
         p(h4("General Setting")),
@@ -162,16 +146,17 @@ shinyUI(navbarPage(
           tabPanel("Estimation", h3("Estimation of entropy"), 
                    icon = icon("thumbs-up"),
                    htmlOutput('MIest'),
-                   downloadLink("MIdlest", "Download as csv file")
+                   downloadLink("MIdlest", "Download as csv file"),
+                   includeMarkdown("man-mi/estimator-mi.md")
           ),
           tabPanel("Visualization", h3("Comparison with different methods"), 
                    icon = icon("bar-chart-o"),
                    plotOutput('MIvisualization', width="900px", height="600px")
           ),
           tabPanel("User Guide", icon = icon("question-circle"), 
-                   p("Coming soon :)")),
-          tabPanel("R code", icon = icon("wrench"), 
-                   p("Coming soon :)"))
+                   includeMarkdown("man-mi/user-mi.md"))
+#           tabPanel("R code", icon = icon("wrench"), 
+#                    p("Coming soon :)"))
         )
       )
       
