@@ -16,9 +16,10 @@ source("sub/subfun.R")
 source("sub/entropyFunction.R")
 
 ## mi
-Dolichoderinae <- read.csv("data-mi/Dolichoderinae.csv", header=TRUE)
-Formicinae <- read.csv("data-mi/Formicinae.csv", header=TRUE)
-Myrmicinae <- read.csv("data-mi/Myrmicinae.csv", header=TRUE)
+canopy <- read.csv("data-mi/canopy.csv", header=FALSE)
+midstory <- read.csv("data-mi/midstory.csv", header=FALSE)
+understory <- read.csv("data-mi/understory.csv", header=FALSE)
+
 source("sub-mi/miFunction.R")
 
 
@@ -167,14 +168,13 @@ shinyServer(function(input, output, session) {
       output <- as.data.frame(temp)
       tab <- cbind(Methods=rownames(output), output)
       rownames(tab) <- NULL
-      tab$Estimator <- sprintf("%1.3f", tab$Estimator)
-      tab$'Bootstrap s.e.' <- sprintf("%1.3f", tab$'Bootstrap s.e.')
-      tab$'95 % Lower' <- sprintf("%1.3f", tab$'95 % Lower')
-      tab$'95 % Upper' <- sprintf("%1.3f", tab$'95 % Upper')
-      tab$Estimator <- sprintf("<center>%s</center>", tab$Estimator)
-      tab$'Bootstrap s.e.' <- sprintf("<center>%s</center>", tab$'Bootstrap s.e.')
-      tab$'95 % Lower' <- sprintf("<center>%s</center>", tab$'95 % Lower')
-      tab$'95 % Upper' <- sprintf("<center>%s</center>", tab$'95 % Upper')
+      
+      ## Let 1 --> 1.000
+      ## Let the number put in center
+      for (i in 2:5) {
+        tab[, i] <- sprintf("%1.3f", tab[, i])
+        tab[, i] <- sprintf("<center>%s</center>", tab[, i])
+      }
       
       gis <- gvisTable(tab, options=list(width='90%', height='60%', allowHtml=TRUE))
       gis$html <- gis$html[-c(3:4)]
@@ -214,6 +214,16 @@ shinyServer(function(input, output, session) {
     })
   })
   
+  getNumberOfPlots <- reactive({
+    if (input$goButton == 0) return(1)
+    isolate({
+      return(length(input$dataset))
+    })
+  })
+  getVarHeight <- function (){
+    return(getNumberOfPlots() * 400)
+  }
+  
   ##  Picture
   output$visualization <- renderPlot({
     if (input$goButton == 0) return(NULL)
@@ -248,7 +258,7 @@ shinyServer(function(input, output, session) {
         print(multiplot4shiny(pic, cols=1))
       })
     })
-  })
+  }, height=getVarHeight)
   
   #Download ChaoEntropy output 
   output$dlest <- downloadHandler(
@@ -263,7 +273,7 @@ shinyServer(function(input, output, session) {
   #######################  START to Mutual Information  #######################
   #######################  START to Mutual Information  #######################
   
-  MIdemoDataset <- list(Dolichoderinae=Dolichoderinae, Formicinae=Formicinae, Myrmicinae=Myrmicinae)
+  MIdemoDataset <- list(canopy=canopy, midstory=midstory, understory=understory)
   
   MIdata <- reactive({
     if (input$MIsource == 'MIdemo') {
@@ -279,21 +289,26 @@ shinyServer(function(input, output, session) {
         na2 <- gsub(pattern=".csv", replacement="", x=name2)
         na3 <- gsub(pattern=".csv", replacement="", x=name3)
         if (is.null(input$MIfiles2)) {
-          midata <- list(read.csv(input$MIfiles1$datapath))
+          midata <- list(read.csv(input$MIfiles1$datapath, header=FALSE))
           names(midata) <- c(na1)          
         } else if (is.null(input$MIfiles3)) {
-          midata <- list(read.csv(input$MIfiles1$datapath),
-                         read.csv(input$MIfiles2$datapath))
+          midata <- list(read.csv(input$MIfiles1$datapath, header=FALSE),
+                         read.csv(input$MIfiles2$datapath, header=FALSE))
           names(midata) <- c(na1, na2)
         } else {
-          midata <- list(read.csv(input$MIfiles1$datapath),
-                         read.csv(input$MIfiles2$datapath),
-                         read.csv(input$MIfiles3$datapath))
-          names(midata) <- c(na1, na2, na2)
+          midata <- list(read.csv(input$MIfiles1$datapath, header=FALSE),
+                         read.csv(input$MIfiles2$datapath, header=FALSE),
+                         read.csv(input$MIfiles3$datapath, header=FALSE))
+          names(midata) <- c(na1, na2, na3)
         }
       }
     }
-    midata
+    out <- lapply(midata, function(x) {
+      colnames(x) <- c("Var.", as.vector(as.matrix(x[1, -1])))
+      x2 <- x[-1, ]
+      x2
+    })
+    out
   })
   
   MIgetDataName <- reactive({
@@ -333,19 +348,26 @@ shinyServer(function(input, output, session) {
       }
       dataset <- MIselectedData()
       summ <- lapply(dataset, function(x) {
-        gvisTable(x, options=list(width='90%', height='50%', sort='disable'))
+        gvisTable(x, options=list(width='90%', height='50%', sort='disable', page='enable'))
       })
       for (i in seq_along(dataset)) {
         summ[[i]]$html <- summ[[i]]$html[-c(3:4)]
       }
-      return(summ)      
+      return(summ)
     })
   })
   
   
   MIcomputation <- reactive({
     dataset <- MIselectedData()
-    out <- lapply(dataset, function(x) {
+    dataset2 <- lapply(dataset, function(x) {
+      x <- x[, -1]
+      for (i in 1:ncol(x)) {
+        x[, i] <- as.numeric(as.character(x[, i]))
+      }
+      x
+    })
+    out <- lapply(dataset2, function(x) {
       temp <- ChaoMI(data=x, method=input$MImethod, nboot=input$MInboot, conf=input$MIconf)
       temp <- round(temp, 3)
       
@@ -353,15 +375,12 @@ shinyServer(function(input, output, session) {
       output <- as.data.frame(temp)
       tab <- cbind(Methods=rownames(output), output)
       rownames(tab) <- NULL
-      tab$Estimator <- sprintf("%1.3f", tab$Estimator)
-      tab$'Bootstrap s.e.' <- sprintf("%1.3f", tab$'Bootstrap s.e.')
-      tab$'95 % Lower' <- sprintf("%1.3f", tab$'95 % Lower')
-      tab$'95 % Upper' <- sprintf("%1.3f", tab$'95 % Upper')
-      tab$Estimator <- sprintf("<center>%s</center>", tab$Estimator)
-      tab$'Bootstrap s.e.' <- sprintf("<center>%s</center>", tab$'Bootstrap s.e.')
-      tab$'95 % Lower' <- sprintf("<center>%s</center>", tab$'95 % Lower')
-      tab$'95 % Upper' <- sprintf("<center>%s</center>", tab$'95 % Upper')
       
+      for (i in 2:5) {
+        tab[, i] <- sprintf("%1.3f", tab[, i])
+        tab[, i] <- sprintf("<center>%s</center>", tab[, i])
+      }
+     
       gis <- gvisTable(tab, options=list(width='90%', height='60%', allowHtml=TRUE))
       gis$html <- gis$html[-c(3:4)]
       return(list(temp, gis))
@@ -408,6 +427,17 @@ shinyServer(function(input, output, session) {
     }
   )
   
+  MIgetNumberOfPlots <- reactive({
+    if (input$goButton == 0) return(1)
+    isolate({
+      return(max(seq_along(input$MIdataset)))
+    })
+  })
+  MIgetVarHeight <- function(){
+    return(MIgetNumberOfPlots() * 400)
+  }
+  
+  
   output$MIvisualization <- renderPlot({
     if (input$MIgoButton == 0) return(NULL)
     isolate({
@@ -441,5 +471,5 @@ shinyServer(function(input, output, session) {
         print(multiplot4shiny(pic, cols=1))
       })
     })
-  })
+  }, height=MIgetVarHeight)
 })

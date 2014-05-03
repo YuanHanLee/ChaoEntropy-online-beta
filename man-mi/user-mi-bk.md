@@ -54,9 +54,9 @@ _<h3 id="upload">Upload Data</h3>_
 <strong>`ChaoMI`</strong> also provides a upload function. Click the **Upload data** button, there will show the **file choose** button to upload the data. **User's data MUST be .csv**. After upload the data, the file name which your uploaded will be listed in the box. 
 
 We provides three dataset to download from Schleuning et al. (2010), according to the feeding guilds of frugivore community deviding the data into three group:
-  1. <a href="https://www.dropbox.com/s/3sxq0avddz8d5y6/obligate.csv" download>`obligate` (Click to download)</a>
-  2. <a href="https://www.dropbox.com/s/rd30ucc0y0eza1s/opportunistic.csv" download>`opportunistic` (Click to download)</a>
-  3. <a href="https://www.dropbox.com/s/w0c85x71cshbn25/partial.csv" download>`partial` (Click to download)</a>
+  1. <a href="https://dl.dropboxusercontent.com/s/3sxq0avddz8d5y6/obligate.csv">`obligate` (Click to download)</a>
+  2. <a href="https://dl.dropboxusercontent.com/s/rd30ucc0y0eza1s/opportunistic.csv">`opportunistic` (Click to download)</a>
+  3. <a href="https://dl.dropboxusercontent.com/s/w0c85x71cshbn25/partial.csv">`partial` (Click to download)</a>
 
 <h2 id="gen-settings">General settings</h2>
 _<h3 id="method">Method</h3>_

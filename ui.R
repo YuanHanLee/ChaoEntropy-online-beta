@@ -90,7 +90,7 @@ shinyUI(navbarPage(
                  
                  tabPanel("Visualization", h3("Comparison with different methods"), 
                           icon = icon("bar-chart-o"),
-                          plotOutput("visualization", width="900px", height="600px")
+                          plotOutput("visualization", width="900px", height="auto")
                           
                  ),
                  tabPanel("User Guide", icon = icon("question-circle"),includeMarkdown("man/user.md")),
@@ -118,7 +118,7 @@ shinyUI(navbarPage(
           radioButtons(inputId="MIsource", "Choose one:", 
                        choices=c("Demo data" = "MIdemo", "Upload data" = "MIupload")
           ),
-          conditionalPanel(condition="input.MIsource == 'upload'",
+          conditionalPanel(condition="input.MIsource == 'MIupload'",
                            fileInput("MIfiles1", "Choose File (.csv)", accept=".csv"),
                            fileInput("MIfiles2", "Choose File (.csv)"),
                            fileInput("MIfiles3", "Choose File (.csv)")
@@ -151,7 +151,7 @@ shinyUI(navbarPage(
           ),
           tabPanel("Visualization", h3("Comparison with different methods"), 
                    icon = icon("bar-chart-o"),
-                   plotOutput('MIvisualization', width="900px", height="600px")
+                   plotOutput('MIvisualization', width="900px", height="auto")
           ),
           tabPanel("User Guide", icon = icon("question-circle"), 
                    includeMarkdown("man-mi/user-mi.md"))

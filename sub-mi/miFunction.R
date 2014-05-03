@@ -205,6 +205,17 @@ MIBootstrapProposedFun <- function(mat, B, FunName) {
   return(se)
 }
 
+MIBootstrapFun_MLE <- function(mat, B, FunName) {
+  n <- sum(mat)
+  prob.hat <- mat / n
+  W <- rmultinom(B, n, as.numeric(prob.hat))
+  
+  se <- sd(apply(W, 2, function(w) {
+    w1 <- matrix(w, ncol=ncol(mat))
+    FunName(w1)
+  }))
+  return(se)
+}
 
 #######################################################################
 #                                                                     #
