@@ -98,4 +98,5 @@ This tab panel shows the interactive estimator and confidence interval plot.
 5. Blüthgen, N., N. E. Stork, and K. Fiedler. 2004. Bottom-up control and co-occurrence in complex communities: honeydew and nectar determine a rainforest ant mosaic. _Oikos_, __106__, 344-358.
 
 6. Matthias Schleuning, Nico Blüthgen, Martina Flörchinger, Julius Braun, H. Martin Schaefer, Katrin Böhning-Gaese, (2011). Specialization and interaction strength in a tropical plant-frugivore network differ among forest strata. _Ecology_, __92(1)__, 26-36.
+
 </font>
