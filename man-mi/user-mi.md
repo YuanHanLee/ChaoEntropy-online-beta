@@ -26,7 +26,7 @@ matrix of two-dimension data, in which cells with positive integers indicate the
 _<h3 id="cite2">How to Cite</h3>_
 <font color="ff0000">If you use <strong>`ChaoEntropy Online`</strong> to obtain results for publication, you should cite the papers (Chao, A., Wang, Y. T. and Jost, L. (2013) Entropy and the species accumulation curve: a novel entropy estimator via discovery rates of new species. _Methods in Ecology and Evolution_, __4__, 1091-1100.) along with the following reference for `ChaoEntropy Online`:
 
-<p style="padding-left: 30px;"> Chao, A., Lee, Y.-H. and Tseng, K.-S. (2014). ChaoEntropy online.</font>
+<p style="padding-left: 30px;"> Chao, A., Lee, Y.-H. and Tseng, K.-S. (2014). ChaoEntropy Online.</font>
   
 To help refine <strong>`ChaoEntropy Online`</strong>, your comments or feedbacks would be welcome (please send them to chao@stat.nthu.edu.tw).
 
