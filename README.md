@@ -10,7 +10,7 @@
 ### Run the development version of the web app in the browser window
 - Required: A modern browser (e.g., Chrome, Firefox, or Safari). Internet Explorer is not supported.
   
-  <a href="http://spark.rstudio.com/mikelee/ChaoEntropy-beta/" target="_blank">Click here link to ChaoEntropy web App</a>
+  <a href="https://yuanhan.shinyapps.io/ChaoEntropy-beta/" target="_blank">Click here link to ChaoEntropy web App</a>
 
 ### Run the development version of the web app locally
 
