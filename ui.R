@@ -29,10 +29,6 @@ shinyUI(navbarPage(
                                   fileInput("files", "Choose File (.csv)", accept=".csv")
                  ),
                  
-                 
-                 uiOutput("choose_dataset"),
-                 p(em("Using ctrl / command key to select multiple datasets you want")),
-                 
                  conditionalPanel(condition="input.source == 'import'",
                                   p("Import data:"),
                                   conditionalPanel(
@@ -46,8 +42,10 @@ shinyUI(navbarPage(
                                                   "Ant 62  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  3  3  3  3  3  3  3  3  3  3  3  3  3  4  4  4  4  4  4  4  5  5  5  5  6  6  7  9  9  9  9 10 10 12 13 14 14 14 15 15 16 18 19 19 20 29 \nSeedlings 121  61  47  52  43  43   9  24   5  24  11  11  13  17   6  10   3   8   9   9  3   6   6   1   7   4   6   6   4   3   4   2   2   1   1")
                                   ),          
                                   p(em("Refer to user guide for importing data"))
-                 )
+                 ),
                  
+                 uiOutput("choose_dataset"),
+                 p(em("Using ctrl / command key to select multiple datasets you want"))
                ),
                
                p(h4("General Setting")),
