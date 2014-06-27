@@ -5,7 +5,7 @@ require(ggplot2)
 # devtools::install_github("wesanderson","karthik")
 require(wesanderson)
 # devtools::install_github("shiny-incubator", "rstudio")
-# require(shinyIncubator)
+
 
 ## entropy
 load("data/Ant.rda")
