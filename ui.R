@@ -1,6 +1,20 @@
+loadingBar <- tags$div(class="progress progress-striped active",
+                       tags$div(class="bar", style="width: 100%;"))
+# Code for loading message
+loadingMsg <- tags$div(class="modal", tabindex="-1", role="dialog", 
+                       "aria-labelledby"="myModalLabel", "aria-hidden"="true",
+                       tags$div(class="modal-header",
+                                tags$h3(id="myModalHeader", "Loading...")),
+                       tags$div(class="modal-footer",
+                                loadingBar))
+# The conditional panel to show when shiny is busy
+loadingPanel <- conditionalPanel(paste("input.goButton > 0 &&", 
+                                       "$('html').hasClass('shiny-busy')"),
+                                 loadingMsg)
+
 require(shiny)
 require(knitr)
-require(shinyIncubator)
+
 
 shinyUI(navbarPage(
 #   theme = "bootstrap.css",
@@ -68,13 +82,13 @@ shinyUI(navbarPage(
                
              ),
              mainPanel(
-               progressInit(),
                tabsetPanel(
                  tabPanel("Data Summary", h3("Basic data information"),
                           icon = icon("list-alt"),
                           htmlOutput("data_summary")
                  ),
-                 tabPanel("Estimation", h3("Estimation of entropy"), 
+                 tabPanel("Estimation", h3("Estimation of entropy"),
+                          loadingPanel,
                           icon = icon("thumbs-up"),
                           htmlOutput('est'),
                           downloadLink("dlest", "Download as csv file"),
@@ -86,7 +100,8 @@ shinyUI(navbarPage(
                             includeMarkdown("man/estimator_inc.md"))
                  ),
                  
-                 tabPanel("Visualization", h3("Comparison with different methods"), 
+                 tabPanel("Visualization", h3("Comparison with different methods"),
+                          loadingPanel,
                           icon = icon("bar-chart-o"),
                           plotOutput("visualization", width="900px", height="auto")
                           
@@ -135,19 +150,20 @@ shinyUI(navbarPage(
         )
       ),
       mainPanel(
-        progressInit(),
         tabsetPanel(
           tabPanel("Data Viewer", h3("Show raw data"),
                    icon = icon("list-alt"),
                    htmlOutput('MIdata_summary')
           ),
           tabPanel("Estimation", h3("Estimation of entropy"), 
+                   loadingPanel,
                    icon = icon("thumbs-up"),
                    htmlOutput('MIest'),
                    downloadLink("MIdlest", "Download as csv file"),
                    includeMarkdown("man-mi/estimator-mi.md")
           ),
           tabPanel("Visualization", h3("Comparison with different methods"), 
+                   loadingPanel,
                    icon = icon("bar-chart-o"),
                    plotOutput('MIvisualization', width="900px", height="auto")
           ),
